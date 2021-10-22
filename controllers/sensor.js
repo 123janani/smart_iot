@@ -25,35 +25,128 @@ var client = mqtt.connect("ws://18.191.187.178:9001", {
   password: "root",
 });
 
-const getSensorData = async (req, response, next) => {
+const getSensorTemperature = async (req, response, next) => {
   console.log("get 1: ", req.route);
 
   try {
     console.log("inside try: ");
 
-    await mysqlConnection.query("SELECT * FROM sensorAnalytics", (err, res) => {
-      if (err) {
-        console.log("error: ", err);
-        res.status(500);
-      } else {
-        console.log("data : ", res);
-        const time = [];
-        const value = [];
-        const action = [];
-        for (const i of res) {
-          time.push(i.DateTime);
-          value.push(i.value);
-          action.push(i.actionPoint);
+    await mysqlConnection.query(
+      "SELECT * FROM sensorAnalytics where sensorId=1",
+      (err, res) => {
+        if (err) {
+          console.log("error: ", err);
+          res.status(500);
+        } else {
+          console.log("data : ", res);
+          const time = [];
+          const value = [];
+          const action = [];
+          for (const i of res) {
+            time.push(i.DateTime);
+            value.push(i.value);
+            action.push(i.actionPoint);
+          }
+          response.status(200).json({ time, value, action });
         }
-        response.status(200).json({ time, value, action });
       }
-    });
+    );
+  } catch (error) {
+    response.status(500).json(error);
+  }
+};
+const getSensorHumidity = async (req, response, next) => {
+  console.log("get 1: ", req.route);
+
+  try {
+    console.log("inside try: ");
+
+    await mysqlConnection.query(
+      "SELECT * FROM sensorAnalytics where sensorId=2",
+      (err, res) => {
+        if (err) {
+          console.log("error: ", err);
+          res.status(500);
+        } else {
+          console.log("data : ", res);
+          const time = [];
+          const value = [];
+          const action = [];
+          for (const i of res) {
+            time.push(i.DateTime);
+            value.push(i.value);
+            action.push(i.actionPoint);
+          }
+          response.status(200).json({ time, value, action });
+        }
+      }
+    );
+  } catch (error) {
+    response.status(500).json(error);
+  }
+};
+const getSensorSoil = async (req, response, next) => {
+  console.log("get 1: ", req.route);
+
+  try {
+    console.log("inside try: ");
+
+    await mysqlConnection.query(
+      "SELECT * FROM sensorAnalytics where sensorId=3",
+      (err, res) => {
+        if (err) {
+          console.log("error: ", err);
+          res.status(500);
+        } else {
+          console.log("data : ", res);
+          const time = [];
+          const value = [];
+          const action = [];
+          for (const i of res) {
+            time.push(i.DateTime);
+            value.push(i.value);
+            action.push(i.actionPoint);
+          }
+          response.status(200).json({ time, value, action });
+        }
+      }
+    );
+  } catch (error) {
+    response.status(500).json(error);
+  }
+};
+const getSensorLight = async (req, response, next) => {
+  console.log("get 1: ", req.route);
+
+  try {
+    console.log("inside try: ");
+
+    await mysqlConnection.query(
+      "SELECT * FROM sensorAnalytics where sensorId=4",
+      (err, res) => {
+        if (err) {
+          console.log("error: ", err);
+          res.status(500);
+        } else {
+          console.log("data : ", res);
+          const time = [];
+          const value = [];
+          const action = [];
+          for (const i of res) {
+            time.push(i.DateTime);
+            value.push(i.value);
+            action.push(i.actionPoint);
+          }
+          response.status(200).json({ time, value, action });
+        }
+      }
+    );
   } catch (error) {
     response.status(500).json(error);
   }
 };
 
-const saveTemperature = async ( value) => {
+const saveTemperature = async (value) => {
   try {
     const date = Date.now();
     let action = 0;
@@ -71,8 +164,7 @@ const saveTemperature = async ( value) => {
       //insert to actuator=1
     }
     console.log("data2", "inside temperature");
-    var sql =
-      `INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (1,${date},${value},${action})`;
+    var sql = `INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (1,${date},${value},${action})`;
 
     await mysqlConnection.query(sql, function (error, results, fields) {
       if (error) throw error;
@@ -82,15 +174,15 @@ const saveTemperature = async ( value) => {
 
     //insert to actuator=0
     if (action === 1) {
-      var sql1 = `INSERT INTO ActuatorUpTime (StartTime,StopTime,EnergyUsage,ActuatorId) VALUES (${date},null,5,1)`;
-    
+      var sql1 = `INSERT INTO ActuatorUpTime (StartTime,StopTime,EnergyUsage,ActuatorId) VALUES (${date},null,null,1)`;
+
       await mysqlConnection.query(sql1, function (error, results, fields) {
         if (error) throw error;
         console.log(results.insertId);
       });
       console.log("data4");
     } else {
-      var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=1 AND `;
+      var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=1`;
 
       await mysqlConnection.query(sql1, function (error, results, fields) {
         if (error) throw error;
@@ -135,7 +227,7 @@ const saveHumidity = async (value) => {
     });
     console.log("data4");
   } else {
-    var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=1 AND `;
+    var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=1  `;
 
     await mysqlConnection.query(sql1, function (error, results, fields) {
       if (error) throw error;
@@ -147,11 +239,11 @@ const saveHumidity = async (value) => {
 const saveSoilMoisture = async (value) => {
   const date = Date.now();
   let action = 0;
-  if (value === "Dry") {
+  if (value === "on") {
     action = 1;
     function timer() {
       client.publish(
-        "mqtt/soil",
+        "mqtt/soil/act",
         JSON.stringify(`hello world`) //convert number to string
       ); //publish sensor data to broker on topic mqtt/dht
       console.log("topic published to the broker");
@@ -161,10 +253,9 @@ const saveSoilMoisture = async (value) => {
     //insert to actuator=1
   }
   console.log("data2");
-  var sql =
-    "INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (1,'00:31',35,0)";
+  var sql = `INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (3,${date},"${value}",${action})`;
   mysqlConnection.query(sql, function (err, result) {
-    console.log("data4");
+    console.log("data4", value);
     if (err) throw err;
     console.log("1 record inserted", result);
   });
@@ -178,7 +269,7 @@ const saveSoilMoisture = async (value) => {
     });
     console.log("data4");
   } else {
-    var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=1 AND `;
+    var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=1  `;
 
     await mysqlConnection.query(sql1, function (error, results, fields) {
       if (error) throw error;
@@ -221,7 +312,7 @@ const saveLightSensor = async (value) => {
     });
     console.log("data4");
   } else {
-    var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=1 AND `;
+    var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=1  `;
 
     await mysqlConnection.query(sql1, function (error, results, fields) {
       if (error) throw error;
@@ -235,7 +326,7 @@ const saveSensorData = async (req, response, next) => {
   console.log("data1");
   try {
     console.log("data : ", req.query);
-    const id = req.query.id;
+    const id = parseInt(req.query.sensorID);
     const value = req.query.value;
 
     if (id === 1) {
@@ -254,6 +345,9 @@ const saveSensorData = async (req, response, next) => {
 };
 
 module.exports = {
-  getSensorData,
+  getSensorTemperature,
+  getSensorHumidity,
+  getSensorSoil,
+  getSensorLight,
   saveSensorData,
 };

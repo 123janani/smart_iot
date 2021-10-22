@@ -178,13 +178,13 @@ var client_h1 = mqtt.connect("ws://18.191.187.178:9001", {
   username: "iot", // your broker username
   password: "root", // your broker password
 });
-client_h1.subscribe("mqtt/dht/Act"); //your mqtt topic
+client_h1.subscribe("mqtt/dht/act"); //your mqtt topic
 client_h1.on("message", function (topic, payload) {
   //alert(payload1);
   console.log("Act=" + payload);
 });
-
-fetch("http://localhost:3000/api/sensor", {
+// Chart 1------------------------
+fetch("http://localhost:3000/api/sensor/temperature", {
   method: "GET",
 })
   .then(function (response) {
@@ -305,6 +305,375 @@ fetch("http://localhost:3000/api/sensor", {
     // There was an error
     console.warn("Something went wrong.", err);
   });
+// Chart 2------------------------------
+fetch("http://localhost:3000/api/sensor/humidity", {
+  method: "GET",
+})
+  .then(function (response) {
+    // The API call was successful!
+    return response.json();
+  })
+  .then(function (data) {
+    // This is the JSON from our response
+    console.log("aaaa-data", data);
+    var ctx = document.getElementById("statisticsChart1").getContext("2d");
+
+    // var pointRadius = 5;
+    // var pointcolor = "green";
+    var pointRadius_arr = [];
+    var pointcolor_arr = [];
+    var i = 0;
+    for (i = 0; i < data.action.length; i++) {
+      if (data.action[i] === 1) {
+        pointRadius_arr[i] = 10;
+        pointcolor_arr[i] = "red";
+      } else {
+        pointRadius_arr[i] = 5;
+        pointcolor_arr[i] = "green";
+      }
+    }
+    console.log(pointRadius_arr);
+    console.log(pointcolor_arr);
+    //var pointRadius=data;
+    //var pointcolor=['green','green','green','green','red','green','green','green','red','green','green','red'];
+    var statisticsChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: data.time,
+        datasets: [
+          {
+            label: "Humidity",
+            borderColor: "",
+            pointBackgroundColor: pointcolor_arr,
+            pointRadius: pointRadius_arr,
+            backgroundColor: "rgba(243, 84, 93, 0.1)",
+            legendColor: "#f3545d",
+            fill: true,
+            borderWidth: 2,
+            //data: [154, 184, 175, 203, 210, 231, 240, 278, 252, 312, 320, 374]
+            data: data.value,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        legend: {
+          display: true,
+        },
+        tooltips: {
+          bodySpacing: 4,
+          mode: "nearest",
+          intersect: 0,
+          position: "nearest",
+          xPadding: 10,
+          yPadding: 10,
+          caretPadding: 10,
+        },
+        layout: {
+          padding: { left: 15, right: 15, top: 15, bottom: 15 },
+        },
+        scales: {
+          yAxes: [
+            {
+              ticks: {
+                fontColor: "rgba(0,0,0,0.5)",
+                fontStyle: "500",
+                beginAtZero: false,
+                maxTicksLimit: 5,
+                padding: 20,
+              },
+              gridLines: {
+                drawTicks: false,
+                display: false,
+              },
+            },
+          ],
+          xAxes: [
+            {
+              gridLines: {
+                zeroLineColor: "transparent",
+              },
+              ticks: {
+                padding: 20,
+                fontColor: "rgba(0,0,0,0.5)",
+                fontStyle: "500",
+              },
+            },
+          ],
+        },
+        legendCallback: function (chart) {
+          var text = [];
+          text.push('<ul class="' + chart.id + '-legend html-legend">');
+          for (var i = 0; i < chart.data.datasets.length; i++) {
+            text.push(
+              '<li><span style="background-color:' +
+                chart.data.datasets[i].legendColor +
+                '"></span>'
+            );
+            if (chart.data.datasets[i].label) {
+              text.push(chart.data.datasets[i].label);
+            }
+            text.push("</li>");
+          }
+          text.push("</ul>");
+          return text.join("");
+        },
+      },
+    });
+    return data;
+  })
+  .catch(function (err) {
+    // There was an error
+    console.warn("Something went wrong.", err);
+  });
+
+// Chart 3------------------------------
+fetch("http://localhost:3000/api/sensor/soil", {
+  method: "GET",
+})
+  .then(function (response) {
+    // The API call was successful!
+    return response.json();
+  })
+  .then(function (data) {
+    // This is the JSON from our response
+    console.log("aaaa-data", data);
+    var ctx = document.getElementById("statisticsChart2").getContext("2d");
+
+    // var pointRadius = 5;
+    // var pointcolor = "green";
+    var pointRadius_arr = [];
+    var pointcolor_arr = [];
+    var i = 0;
+    for (i = 0; i < data.action.length; i++) {
+      if (data.action[i] === 1) {
+        pointRadius_arr[i] = 10;
+        pointcolor_arr[i] = "red";
+      } else {
+        pointRadius_arr[i] = 5;
+        pointcolor_arr[i] = "green";
+      }
+    }
+    console.log(pointRadius_arr);
+    console.log(pointcolor_arr);
+    //var pointRadius=data;
+    //var pointcolor=['green','green','green','green','red','green','green','green','red','green','green','red'];
+    var statisticsChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: data.time,
+        datasets: [
+          {
+            label: "Soil Moisture",
+            borderColor: "",
+            pointBackgroundColor: pointcolor_arr,
+            pointRadius: pointRadius_arr,
+            backgroundColor: "rgba(243, 84, 93, 0.1)",
+            legendColor: "#f3545d",
+            fill: true,
+            borderWidth: 2,
+            //data: [154, 184, 175, 203, 210, 231, 240, 278, 252, 312, 320, 374]
+            data: data.value,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        legend: {
+          display: true,
+        },
+        tooltips: {
+          bodySpacing: 4,
+          mode: "nearest",
+          intersect: 0,
+          position: "nearest",
+          xPadding: 10,
+          yPadding: 10,
+          caretPadding: 10,
+        },
+        layout: {
+          padding: { left: 15, right: 15, top: 15, bottom: 15 },
+        },
+        scales: {
+          yAxes: [
+            {
+              ticks: {
+                fontColor: "rgba(0,0,0,0.5)",
+                fontStyle: "500",
+                beginAtZero: false,
+                maxTicksLimit: 5,
+                padding: 20,
+              },
+              gridLines: {
+                drawTicks: false,
+                display: false,
+              },
+            },
+          ],
+          xAxes: [
+            {
+              gridLines: {
+                zeroLineColor: "transparent",
+              },
+              ticks: {
+                padding: 20,
+                fontColor: "rgba(0,0,0,0.5)",
+                fontStyle: "500",
+              },
+            },
+          ],
+        },
+        legendCallback: function (chart) {
+          var text = [];
+          text.push('<ul class="' + chart.id + '-legend html-legend">');
+          for (var i = 0; i < chart.data.datasets.length; i++) {
+            text.push(
+              '<li><span style="background-color:' +
+                chart.data.datasets[i].legendColor +
+                '"></span>'
+            );
+            if (chart.data.datasets[i].label) {
+              text.push(chart.data.datasets[i].label);
+            }
+            text.push("</li>");
+          }
+          text.push("</ul>");
+          return text.join("");
+        },
+      },
+    });
+    return data;
+  })
+  .catch(function (err) {
+    // There was an error
+    console.warn("Something went wrong.", err);
+  });
+
+// Chart 4------------------------------
+fetch("http://localhost:3000/api/sensor/light", {
+  method: "GET",
+})
+  .then(function (response) {
+    // The API call was successful!
+    return response.json();
+  })
+  .then(function (data) {
+    // This is the JSON from our response
+    console.log("aaaa-data", data);
+    var ctx = document.getElementById("statisticsChart3").getContext("2d");
+
+    // var pointRadius = 5;
+    // var pointcolor = "green";
+    var pointRadius_arr = [];
+    var pointcolor_arr = [];
+    var i = 0;
+    for (i = 0; i < data.action.length; i++) {
+      if (data.action[i] === 1) {
+        pointRadius_arr[i] = 10;
+        pointcolor_arr[i] = "red";
+      } else {
+        pointRadius_arr[i] = 5;
+        pointcolor_arr[i] = "green";
+      }
+    }
+    console.log(pointRadius_arr);
+    console.log(pointcolor_arr);
+    //var pointRadius=data;
+    //var pointcolor=['green','green','green','green','red','green','green','green','red','green','green','red'];
+    var statisticsChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: data.time,
+        datasets: [
+          {
+            label: "Light",
+            borderColor: "",
+            pointBackgroundColor: pointcolor_arr,
+            pointRadius: pointRadius_arr,
+            backgroundColor: "rgba(243, 84, 93, 0.1)",
+            legendColor: "#f3545d",
+            fill: true,
+            borderWidth: 2,
+            //data: [154, 184, 175, 203, 210, 231, 240, 278, 252, 312, 320, 374]
+            data: data.value,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        legend: {
+          display: true,
+        },
+        tooltips: {
+          bodySpacing: 4,
+          mode: "nearest",
+          intersect: 0,
+          position: "nearest",
+          xPadding: 10,
+          yPadding: 10,
+          caretPadding: 10,
+        },
+        layout: {
+          padding: { left: 15, right: 15, top: 15, bottom: 15 },
+        },
+        scales: {
+          yAxes: [
+            {
+              ticks: {
+                fontColor: "rgba(0,0,0,0.5)",
+                fontStyle: "500",
+                beginAtZero: false,
+                maxTicksLimit: 5,
+                padding: 20,
+              },
+              gridLines: {
+                drawTicks: false,
+                display: false,
+              },
+            },
+          ],
+          xAxes: [
+            {
+              gridLines: {
+                zeroLineColor: "transparent",
+              },
+              ticks: {
+                padding: 20,
+                fontColor: "rgba(0,0,0,0.5)",
+                fontStyle: "500",
+              },
+            },
+          ],
+        },
+        legendCallback: function (chart) {
+          var text = [];
+          text.push('<ul class="' + chart.id + '-legend html-legend">');
+          for (var i = 0; i < chart.data.datasets.length; i++) {
+            text.push(
+              '<li><span style="background-color:' +
+                chart.data.datasets[i].legendColor +
+                '"></span>'
+            );
+            if (chart.data.datasets[i].label) {
+              text.push(chart.data.datasets[i].label);
+            }
+            text.push("</li>");
+          }
+          text.push("</ul>");
+          return text.join("");
+        },
+      },
+    });
+    return data;
+  })
+  .catch(function (err) {
+    // There was an error
+    console.warn("Something went wrong.", err);
+  });
+
 
 var myLegendContainer = document.getElementById("myChartLegend");
 
