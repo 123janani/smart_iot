@@ -72,42 +72,163 @@ $("#map-example").vectorMap({
 //     }
 // });
 
-fetch("http://localhost:3000/api/sensor/")
+// var client_t = mqtt.connect("broker.hivemq.com:1883", {   // replace the IP with your AWS instance public IP address
+//        username: "admin",  // your broker username
+//        password: "hivemq",   // your broker password
+//      });
+
+//        client_t.subscribe("mqtt/dht") //your mqtt topic
+//        client_t.on("message", function (topic, payload) {
+//             var output = document.getElementById("temp-value");
+//         output.innerHTML = JSON.parse(payload);
+//         alert(JSON.parse(payload))
+
+//         })
+
+// ------------------Start TEMPERATURE----------------------
+var client_h = mqtt.connect("ws://18.191.187.178:9001", {
+  // replace the IP with your AWS instance public IP address
+  username: "iot", // your broker username
+  password: "root", // your broker password
+});
+
+client_h.subscribe("mqtt/dht11_temperature"); //your mqtt topic
+client_h.on("message", function (topic, payload) {
+  var output = document.getElementById("temp-value");
+  output.innerHTML = payload + " °C";
+  fetch("http://localhost:3000/api/sensor/temp/?sensorID=1&value=" + payload)
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Success:", data);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+});
+// ------------------End TEMPERATURE----------------------
+
+// ------------------Start Humidity----------------------
+var client_h1 = mqtt.connect("ws://18.191.187.178:9001", {
+  // replace the IP with your AWS instance public IP address
+  username: "iot", // your broker username
+  password: "root", // your broker password
+});
+
+client_h1.subscribe("mqtt/dht11_humidity"); //your mqtt topic
+client_h1.on("message", function (topic, payload) {
+  var output = document.getElementById("hu-value");
+  output.innerHTML = payload + " %";
+  fetch("http://localhost:3000/api/sensor/temp/?sensorID=2&value=" + payload)
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Success:", data);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+});
+// ------------------End Humidity----------------------
+
+// ------------------Start Soil Moisture----------------------
+var client_h2 = mqtt.connect("ws://18.191.187.178:9001", {
+  // replace the IP with your AWS instance public IP address
+  username: "iot", // your broker username
+  password: "root", // your broker password
+});
+
+client_h2.subscribe("mqtt/soil"); //your mqtt topic
+client_h2.on("message", function (topic, payload) {
+  var output = document.getElementById("soil-value");
+  output.innerHTML = payload + " %";
+  fetch("http://localhost:3000/api/sensor/temp/?sensorID=3&value=" + payload)
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Success:", data);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+});
+// ------------------End Moisture----------------------
+
+// ------------------Start Light----------------------
+var client_h3 = mqtt.connect("ws://18.191.187.178:9001", {
+  // replace the IP with your AWS instance public IP address
+  username: "iot", // your broker username
+  password: "root", // your broker password
+});
+
+client_h3.subscribe("mqtt/lux"); //your mqtt topic
+client_h3.on("message", function (topic, payload) {
+  var output = document.getElementById("light-value");
+  output.innerHTML = payload + " %";
+  fetch("http://localhost:3000/api/sensor/temp/?sensorID=4&value=" + payload)
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Success:", data);
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+});
+// ------------------End Light----------------------
+
+var client_h1 = mqtt.connect("ws://18.191.187.178:9001", {
+  // replace the IP with your AWS instance public IP address
+  username: "iot", // your broker username
+  password: "root", // your broker password
+});
+client_h1.subscribe("mqtt/dht/Act"); //your mqtt topic
+client_h1.on("message", function (topic, payload) {
+  //alert(payload1);
+  console.log("Act=" + payload);
+});
+
+fetch("http://localhost:3000/api/sensor", {
+  method: "GET",
+})
   .then(function (response) {
     // The API call was successful!
     return response.json();
   })
   .then(function (data) {
     // This is the JSON from our response
-    console.log("aaaa-data-----------------------------", data);
-
+    console.log("aaaa-data", data);
     var ctx = document.getElementById("statisticsChart").getContext("2d");
 
-    var pointRadius = 5;
-    var pointcolor = "green";
-
-    for (var i of data.actionPoint) {
-      if (i === 1) {
-        pointRadius = 10;
-        pointcolor = "red";
+    // var pointRadius = 5;
+    // var pointcolor = "green";
+    var pointRadius_arr = [];
+    var pointcolor_arr = [];
+    var i = 0;
+    for (i = 0; i < data.action.length; i++) {
+      if (data.action[i] === 1) {
+        pointRadius_arr[i] = 10;
+        pointcolor_arr[i] = "red";
+      } else {
+        pointRadius_arr[i] = 5;
+        pointcolor_arr[i] = "green";
       }
     }
-    console.log("pointRadius", pointRadius);
-
+    console.log(pointRadius_arr);
+    console.log(pointcolor_arr);
+    //var pointRadius=data;
+    //var pointcolor=['green','green','green','green','red','green','green','green','red','green','green','red'];
     var statisticsChart = new Chart(ctx, {
       type: "line",
       data: {
-        labels: data.DateTime,
+        labels: data.time,
         datasets: [
           {
             label: "Temperature",
             borderColor: "",
-            pointBackgroundColor: pointcolor,
-            pointRadius: pointRadius,
+            pointBackgroundColor: pointcolor_arr,
+            pointRadius: pointRadius_arr,
             backgroundColor: "rgba(243, 84, 93, 0.1)",
             legendColor: "#f3545d",
             fill: true,
             borderWidth: 2,
+            //data: [154, 184, 175, 203, 210, 231, 240, 278, 252, 312, 320, 374]
             data: data.value,
           },
         ],
@@ -188,7 +309,7 @@ fetch("http://localhost:3000/api/sensor/")
 var myLegendContainer = document.getElementById("myChartLegend");
 
 // generate HTML legend
-myLegendContainer.innerHTML = statisticsChart.generateLegend();
+//myLegendContainer.innerHTML = statisticsChart.generateLegend();
 
 // bind onClick event to all LI-tags of the legend
 var legendItems = myLegendContainer.getElementsByTagName("li");
@@ -203,6 +324,102 @@ var dailySalesChart = document
 var myDailySalesChart = new Chart(dailySalesChart, {
   type: "bar",
   data: {
+    labels: ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP"],
+    datasets: [
+      {
+        label: "Water",
+        fontColor: "#35CD3A",
+        fill: true,
+        backgroundColor: "#177DFF",
+        borderColor: "",
+        borderCapStyle: "",
+        borderDash: [],
+        borderDashOffset: 0,
+        pointBorderColor: "",
+        pointBackgroundColor: "#fff",
+        pointBorderWidth: 1,
+        pointHoverRadius: 5,
+        pointHoverBackgroundColor: "#fff",
+        pointHoverBorderColor: "#fff",
+        pointHoverBorderWidth: 1,
+        pointRadius: 1,
+        pointHitRadius: 5,
+        data: [15, 9, 10, 11, 16, 5, 10, 12, 8],
+      },
+      {
+        label: "Electricity",
+        fill: true,
+        backgroundColor: "#35CD3A",
+        borderColor: "",
+        borderCapStyle: "",
+        borderDash: [],
+        borderDashOffset: 0,
+        pointBorderColor: "",
+        pointBackgroundColor: "#fff",
+        pointBorderWidth: 1,
+        pointHoverRadius: 5,
+        pointHoverBackgroundColor: "#fff",
+        pointHoverBorderColor: "#fff",
+        pointHoverBorderWidth: 1,
+        pointRadius: 1,
+        pointHitRadius: 5,
+        data: [35, 49, 50, 21, 36, 25, 40, 35, 30],
+      },
+    ],
+  },
+  options: {
+    legend: {
+      display: true,
+      labels: {
+        fontColor: "black",
+      },
+    },
+    maintainAspectRatio: true,
+    legend: {
+      display: true,
+    },
+    animation: {
+      easing: "easeInOutBack",
+    },
+    scales: {
+      yAxes: [
+        {
+          display: true,
+          ticks: {
+            fontColor: "rgba(0,0,0,0.5)",
+            fontStyle: "bold",
+            beginAtZero: !0,
+            maxTicksLimit: 10,
+            padding: 0,
+          },
+          gridLines: {
+            drawTicks: false,
+            display: false,
+          },
+        },
+      ],
+      xAxes: [
+        {
+          display: true,
+          gridLines: {
+            zeroLineColor: "transparent",
+          },
+          ticks: {
+            padding: 0,
+            fontColor: "rgba(255,255,255,0.2)",
+            fontStyle: "",
+          },
+        },
+      ],
+    },
+  },
+});
+
+var forecast = document.getElementById("forecast").getContext("2d");
+
+var myforecast = new Chart(forecast, {
+  type: "line",
+  data: {
     labels: [
       "January",
       "February",
@@ -213,33 +430,52 @@ var myDailySalesChart = new Chart(dailySalesChart, {
       "July",
       "August",
       "September",
+      "October",
+      "November",
+      "December",
     ],
     datasets: [
       {
-        label: "Sales Analytics",
+        label: "Cost",
         fill: !0,
-        backgroundColor: "rgba(255,255,255,0.2)",
-        borderColor: "#fff",
+        backgroundColor: "rgba(53, 205, 58, 0.2)",
+        borderColor: "#35cd3a",
         borderCapStyle: "butt",
         borderDash: [],
         borderDashOffset: 0,
-        pointBorderColor: "#fff",
-        pointBackgroundColor: "#fff",
+        pointBorderColor: "#35cd3a",
+        pointBackgroundColor: "#35cd3a",
         pointBorderWidth: 1,
         pointHoverRadius: 5,
-        pointHoverBackgroundColor: "#fff",
-        pointHoverBorderColor: "#fff",
+        pointHoverBackgroundColor: "#35cd3a",
+        pointHoverBorderColor: "#35cd3a",
         pointHoverBorderWidth: 1,
         pointRadius: 1,
         pointHitRadius: 5,
-        data: [65, 59, 80, 81, 56, 55, 40, 35, 30],
+        data: [50, 58, 60, 32, 52, 35, 50, 47, 40, 50, 55, 45],
+
+        pointBackgroundColor: [
+          "blue",
+          "blue",
+          "blue",
+          "blue",
+          "blue",
+          "blue",
+          "blue",
+          "blue",
+          "blue",
+          "red",
+          "red",
+          "red",
+        ],
+        pointRadius: [2, 2, 2, 2, 2, 2, 2, 2, 2, 5, 5, 5],
       },
     ],
   },
   options: {
-    maintainAspectRatio: !1,
+    maintainAspectRatio: true,
     legend: {
-      display: !1,
+      display: true,
     },
     animation: {
       easing: "easeInOutBack",
@@ -247,28 +483,28 @@ var myDailySalesChart = new Chart(dailySalesChart, {
     scales: {
       yAxes: [
         {
-          display: !1,
+          display: true,
           ticks: {
             fontColor: "rgba(0,0,0,0.5)",
             fontStyle: "bold",
-            beginAtZero: !0,
-            maxTicksLimit: 10,
+            beginAtZero: true,
+            maxTicksLimit: 12,
             padding: 0,
           },
           gridLines: {
-            drawTicks: !1,
-            display: !1,
+            drawTicks: true,
+            display: true,
           },
         },
       ],
       xAxes: [
         {
-          display: !1,
+          display: true,
           gridLines: {
             zeroLineColor: "transparent",
           },
           ticks: {
-            padding: -20,
+            padding: 0,
             fontColor: "rgba(255,255,255,0.2)",
             fontStyle: "bold",
           },
@@ -398,3 +634,101 @@ var myTopProductsChart = new Chart(topProductsChart, {
     },
   },
 });
+
+// Highcharts.chart('container', {
+//     chart: {
+//         type: 'spline',
+//         animation: Highcharts.svg, // don't animate in old IE
+//         marginRight: 10,
+//         events: {
+//             load: function () {
+
+//                 // set up the updating of the chart each second
+//                 var series = this.series[0];
+//                 setInterval(function () {
+//                     var x = (new Date()).getTime(), // current time
+//                         y = Math.random();
+//                     series.addPoint([x, y], true, true);
+//                 }, 5000);
+//             }
+//         }
+//     },
+
+//     time: {
+//         useUTC: false
+//     },
+
+//     title: {
+//         text: 'Live random data'
+//     },
+
+//     accessibility: {
+//         announceNewData: {
+//             enabled: true,
+//             minAnnounceInterval: 15000,
+//             announcementFormatter: function (allSeries, newSeries, newPoint) {
+//                 if (newPoint) {
+//                     return 'New point added. Value: ' + newPoint.y;
+//                 }
+//                 return false;
+//             }
+//         }
+//     },
+
+//     xAxis: {
+//         type: 'datetime',
+//         tickPixelInterval: 150
+//     },
+
+//     yAxis: {
+//         title: {
+//             text: 'Value'
+//         },
+//         plotLines: [{
+//             value: 0,
+//             width: 1,
+//             color: '#808080'
+//         }]
+//     },
+
+//     tooltip: {
+//         headerFormat: '<b>{series.name}</b><br/>',
+//         pointFormat: '{point.x:%Y-%m-%d %H:%M:%S}<br/>{point.y:.2f}'
+//     },
+
+//     legend: {
+//         enabled: false
+//     },
+
+//     exporting: {
+//         enabled: false
+//     },
+
+//     series: [{
+//         name: 'Random data',
+//         data: (function () {
+//             // generate an array of random data
+//             // var data = [],
+//             //     time = (new Date()).getTime(),
+//             //     i;
+
+//             // for (i = -19; i <= 0; i += 1) {
+//             //     data.push({
+//             //         x: time + i * 1000,
+//             //         y: Math.random()
+//             //     });
+//             // }
+//             // console.log(data)
+//             var aa=[
+//     {
+//         "x": 1634651158200,
+//         "y": 2
+//     },
+//     {
+//         "x": 1634651159200,
+//         "y": 5
+//     }]
+//             return aa;
+//         }())
+//     }]
+// });

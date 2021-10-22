@@ -102,7 +102,7 @@ const saveTemperature = async ( value) => {
     console.log("error", error);
   }
 };
-const saveHumidity = (value) => {
+const saveHumidity = async (value) => {
   const date = Date.now();
   let action = 0;
   if (value > 50) {
@@ -119,16 +119,32 @@ const saveHumidity = (value) => {
     //insert to actuator=1
   }
   console.log("data2");
-  var sql =
-    "INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (1,'00:31',35,0)";
-  db.query(sql, function (err, result) {
+  var sql = `INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (1,${date},${value},${action})`;
+  mysqlConnection.query(sql, function (err, result) {
     console.log("data4");
     if (err) throw err;
     console.log("1 record inserted", result);
   });
   //insert to actuator=0
+  if (action === 1) {
+    var sql1 = `INSERT INTO ActuatorUpTime (StartTime,StopTime,EnergyUsage,ActuatorId) VALUES (${date},null,5,2)`;
+
+    await mysqlConnection.query(sql1, function (error, results, fields) {
+      if (error) throw error;
+      console.log(results.insertId);
+    });
+    console.log("data4");
+  } else {
+    var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=1 AND `;
+
+    await mysqlConnection.query(sql1, function (error, results, fields) {
+      if (error) throw error;
+      console.log(results.insertId);
+    });
+  }
+  return true;
 };
-const saveSoilMoisture = (value) => {
+const saveSoilMoisture = async (value) => {
   const date = Date.now();
   let action = 0;
   if (value === "Dry") {
@@ -147,14 +163,31 @@ const saveSoilMoisture = (value) => {
   console.log("data2");
   var sql =
     "INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (1,'00:31',35,0)";
-  db.query(sql, function (err, result) {
+  mysqlConnection.query(sql, function (err, result) {
     console.log("data4");
     if (err) throw err;
     console.log("1 record inserted", result);
   });
   //insert to actuator=0
+  if (action === 1) {
+    var sql1 = `INSERT INTO ActuatorUpTime (StartTime,StopTime,EnergyUsage,ActuatorId) VALUES (${date},null,5,3)`;
+
+    await mysqlConnection.query(sql1, function (error, results, fields) {
+      if (error) throw error;
+      console.log(results.insertId);
+    });
+    console.log("data4");
+  } else {
+    var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=1 AND `;
+
+    await mysqlConnection.query(sql1, function (error, results, fields) {
+      if (error) throw error;
+      console.log(results.insertId);
+    });
+  }
+  return true;
 };
-const saveLightSensor = (value) => {
+const saveLightSensor = async (value) => {
   const date = Date.now();
   let action = 0;
   if (value > 200) {
@@ -173,20 +206,37 @@ const saveLightSensor = (value) => {
   console.log("data2");
   var sql =
     "INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (1,'00:31',35,0)";
-  db.query(sql, function (err, result) {
+  mysqlConnection.query(sql, function (err, result) {
     console.log("data4");
     if (err) throw err;
     console.log("1 record inserted", result);
   });
   //insert to actuator=0
+  if (action === 1) {
+    var sql1 = `INSERT INTO ActuatorUpTime (StartTime,StopTime,EnergyUsage,ActuatorId) VALUES (${date},null,5,4)`;
+
+    await mysqlConnection.query(sql1, function (error, results, fields) {
+      if (error) throw error;
+      console.log(results.insertId);
+    });
+    console.log("data4");
+  } else {
+    var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=1 AND `;
+
+    await mysqlConnection.query(sql1, function (error, results, fields) {
+      if (error) throw error;
+      console.log(results.insertId);
+    });
+  }
+  return true;
 };
 
 const saveSensorData = async (req, response, next) => {
   console.log("data1");
   try {
-    console.log("data : ", req.body);
-    const id = (req.body.id);
-    const value = (req.body.value);
+    console.log("data : ", req.query);
+    const id = req.query.id;
+    const value = req.query.value;
 
     if (id === 1) {
       saveTemperature(value);
@@ -197,8 +247,7 @@ const saveSensorData = async (req, response, next) => {
     } else if (id === 4) {
       saveLightSensor(value);
     }
-        response.status(200).json('saved sensor and actuator data');
-
+    response.status(200).json("saved sensor and actuator data");
   } catch (error) {
     response.status(500).json(error);
   }
