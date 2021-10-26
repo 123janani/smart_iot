@@ -148,7 +148,7 @@ const getSensorLight = async (req, response, next) => {
 
 const saveTemperature = async (value) => {
   try {
-    const date = Date.now();
+    const date = new Date();
     let action = 0;
     if (value > 29) {
       action = 1;
@@ -164,7 +164,7 @@ const saveTemperature = async (value) => {
       //insert to actuator=1
     }
     console.log("data2", "inside temperature");
-    var sql = `INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (1,${date},${value},${action})`;
+    var sql = `INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (1,${date},"${value}",${action})`;
 
     await mysqlConnection.query(sql, function (error, results, fields) {
       if (error) throw error;
@@ -182,7 +182,11 @@ const saveTemperature = async (value) => {
       });
       console.log("data4");
     } else {
-      var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=1`;
+      var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=1 AND id IN (SELECT
+                                    MAX(id)
+                                FROM
+                                    ActuatorUpTime
+                                GROUP BY ActuatorId)`;
 
       await mysqlConnection.query(sql1, function (error, results, fields) {
         if (error) throw error;
@@ -194,8 +198,9 @@ const saveTemperature = async (value) => {
     console.log("error", error);
   }
 };
+
 const saveHumidity = async (value) => {
-  const date = Date.now();
+  const date = new Date();
   let action = 0;
   if (value > 50) {
     action = 1;
@@ -211,7 +216,7 @@ const saveHumidity = async (value) => {
     //insert to actuator=1
   }
   console.log("data2");
-  var sql = `INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (1,${date},${value},${action})`;
+  var sql = `INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (1,${date},"${value}",${action})`;
   mysqlConnection.query(sql, function (err, result) {
     console.log("data4");
     if (err) throw err;
@@ -219,7 +224,7 @@ const saveHumidity = async (value) => {
   });
   //insert to actuator=0
   if (action === 1) {
-    var sql1 = `INSERT INTO ActuatorUpTime (StartTime,StopTime,EnergyUsage,ActuatorId) VALUES (${date},null,5,2)`;
+    var sql1 = `INSERT INTO ActuatorUpTime (StartTime,StopTime,EnergyUsage,ActuatorId) VALUES (${date},null,null,2)`;
 
     await mysqlConnection.query(sql1, function (error, results, fields) {
       if (error) throw error;
@@ -227,7 +232,11 @@ const saveHumidity = async (value) => {
     });
     console.log("data4");
   } else {
-    var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=1  `;
+    var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=1 AND id IN (SELECT
+                                    MAX(id)
+                                FROM
+                                    ActuatorUpTime
+                                GROUP BY ActuatorId) `;
 
     await mysqlConnection.query(sql1, function (error, results, fields) {
       if (error) throw error;
@@ -236,8 +245,9 @@ const saveHumidity = async (value) => {
   }
   return true;
 };
+
 const saveSoilMoisture = async (value) => {
-  const date = Date.now();
+  const date = new Date();
   let action = 0;
   if (value === "on") {
     action = 1;
@@ -261,7 +271,7 @@ const saveSoilMoisture = async (value) => {
   });
   //insert to actuator=0
   if (action === 1) {
-    var sql1 = `INSERT INTO ActuatorUpTime (StartTime,StopTime,EnergyUsage,ActuatorId) VALUES (${date},null,5,3)`;
+    var sql1 = `INSERT INTO ActuatorUpTime (StartTime,StopTime,EnergyUsage,ActuatorId) VALUES (${date},null,null,3)`;
 
     await mysqlConnection.query(sql1, function (error, results, fields) {
       if (error) throw error;
@@ -269,7 +279,11 @@ const saveSoilMoisture = async (value) => {
     });
     console.log("data4");
   } else {
-    var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=1  `;
+    var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=3  AND id IN (SELECT
+                                    MAX(id)
+                                FROM
+                                    ActuatorUpTime
+                                GROUP BY ActuatorId)`;
 
     await mysqlConnection.query(sql1, function (error, results, fields) {
       if (error) throw error;
@@ -278,8 +292,9 @@ const saveSoilMoisture = async (value) => {
   }
   return true;
 };
+
 const saveLightSensor = async (value) => {
-  const date = Date.now();
+  const date = new Date();
   let action = 0;
   if (value > 200) {
     action = 1;
@@ -295,8 +310,7 @@ const saveLightSensor = async (value) => {
     //insert to actuator=1
   }
   console.log("data2");
-  var sql =
-    "INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (1,'00:31',35,0)";
+  var sql = `INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (4,${date},"${value}",${action})`;
   mysqlConnection.query(sql, function (err, result) {
     console.log("data4");
     if (err) throw err;
@@ -304,7 +318,7 @@ const saveLightSensor = async (value) => {
   });
   //insert to actuator=0
   if (action === 1) {
-    var sql1 = `INSERT INTO ActuatorUpTime (StartTime,StopTime,EnergyUsage,ActuatorId) VALUES (${date},null,5,4)`;
+    var sql1 = `INSERT INTO ActuatorUpTime (StartTime,StopTime,EnergyUsage,ActuatorId) VALUES (${date},null,null,4)`;
 
     await mysqlConnection.query(sql1, function (error, results, fields) {
       if (error) throw error;
@@ -312,7 +326,11 @@ const saveLightSensor = async (value) => {
     });
     console.log("data4");
   } else {
-    var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=1  `;
+    var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=4  AND id IN (SELECT
+                                    MAX(id)
+                                FROM
+                                    ActuatorUpTime
+                                GROUP BY ActuatorId)`;
 
     await mysqlConnection.query(sql1, function (error, results, fields) {
       if (error) throw error;
