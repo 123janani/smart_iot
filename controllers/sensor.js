@@ -32,7 +32,7 @@ const getSensorTemperature = async (req, response, next) => {
     console.log("inside try: ");
 
     await mysqlConnection.query(
-      "SELECT * FROM sensorAnalytics where sensorId=1 LIMIT 20",
+      "SELECT * FROM sensorAnalytics where sensorId=1 ORDER BY id DESC LIMIT 35",
       (err, res) => {
         if (err) {
           console.log("error: ", err);
