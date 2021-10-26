@@ -228,7 +228,7 @@ const saveHumidity = async (value) => {
     action = 1;
     function timer() {
       client.publish(
-        "mqtt/dht11_humidity",
+        "mqtt/dht11_humidity/ack",
         JSON.stringify(`on`) //convert number to string
       ); //publish sensor data to broker on topic mqtt/dht
       console.log("topic published to the broker");
@@ -254,15 +254,36 @@ const saveHumidity = async (value) => {
     });
     console.log("data4");
   } else {
-    var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=1 AND id IN (SELECT
-                                    MAX(id)
-                                FROM
-                                    ActuatorUpTime
-                                GROUP BY ActuatorId) `;
+    function timer() {
+      client.publish(
+        "mqtt/dht11_humidity/ack",
+        JSON.stringify(`off`) //convert number to string
+      ); //publish sensor data to broker on topic mqtt/dht
+      console.log("topic published to the broker-off");
+    }
+    timer();
 
-    await mysqlConnection.query(sql1, function (error, results, fields) {
-      if (error) throw error;
-      console.log(results.insertId);
+    var ids = `SELECT 
+                    MAX(id) AS id
+                FROM
+                    ActuatorUpTime
+                WHERE
+                    ActuatorId = 2`;
+    console.log("ids", ids);
+
+    await mysqlConnection.query(ids, (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        res.status(500);
+      } else {
+        console.log("data : ", res);
+        var sql2 = `UPDATE ActuatorUpTime SET StopTime="${date}" ,EnergyUsage=5 WHERE id IN (${res[0].id})`;
+
+        mysqlConnection.query(sql2, function (error, results, fields) {
+          if (error) throw error;
+          console.log(results.insertId);
+        });
+      }
     });
   }
   return true;
@@ -275,8 +296,8 @@ const saveSoilMoisture = async (value) => {
     action = 1;
     function timer() {
       client.publish(
-        "mqtt/soil/act",
-        JSON.stringify(`hello world`) //convert number to string
+        "mqtt/soil/ack",
+        JSON.stringify(`on`) //convert number to string
       ); //publish sensor data to broker on topic mqtt/dht
       console.log("topic published to the broker");
     }
@@ -301,15 +322,36 @@ const saveSoilMoisture = async (value) => {
     });
     console.log("data4");
   } else {
-    var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=3  AND id IN (SELECT
-                                    MAX(id)
-                                FROM
-                                    ActuatorUpTime
-                                GROUP BY ActuatorId)`;
+    function timer() {
+      client.publish(
+        "mqtt/soil/ack",
+        JSON.stringify(`off`) //convert number to string
+      ); //publish sensor data to broker on topic mqtt/dht
+      console.log("topic published to the broker-off");
+    }
+    timer();
 
-    await mysqlConnection.query(sql1, function (error, results, fields) {
-      if (error) throw error;
-      console.log(results.insertId);
+    var ids = `SELECT 
+                    MAX(id) AS id
+                FROM
+                    ActuatorUpTime
+                WHERE
+                    ActuatorId = 3`;
+    console.log("ids", ids);
+
+    await mysqlConnection.query(ids, (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        res.status(500);
+      } else {
+        console.log("data : ", res);
+        var sql2 = `UPDATE ActuatorUpTime SET StopTime="${date}" ,EnergyUsage=5 WHERE id IN (${res[0].id})`;
+
+        mysqlConnection.query(sql2, function (error, results, fields) {
+          if (error) throw error;
+          console.log(results.insertId);
+        });
+      }
     });
   }
   return true;
@@ -322,8 +364,8 @@ const saveLightSensor = async (value) => {
     action = 1;
     function timer() {
       client.publish(
-        "mqtt/lux",
-        JSON.stringify(`hello world`) //convert number to string
+        "mqtt/lux/ack",
+        JSON.stringify(`on`) //convert number to string
       ); //publish sensor data to broker on topic mqtt/dht
       console.log("topic published to the broker");
     }
@@ -348,15 +390,36 @@ const saveLightSensor = async (value) => {
     });
     console.log("data4");
   } else {
-    var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=4  AND id IN (SELECT
-                                    MAX(id)
-                                FROM
-                                    ActuatorUpTime
-                                GROUP BY ActuatorId)`;
+    function timer() {
+      client.publish(
+        "mqtt/lux/ack",
+        JSON.stringify(`off`) //convert number to string
+      ); //publish sensor data to broker on topic mqtt/dht
+      console.log("topic published to the broker-off");
+    }
+    timer();
 
-    await mysqlConnection.query(sql1, function (error, results, fields) {
-      if (error) throw error;
-      console.log(results.insertId);
+    var ids = `SELECT 
+                    MAX(id) AS id
+                FROM
+                    ActuatorUpTime
+                WHERE
+                    ActuatorId = 4`;
+    console.log("ids", ids);
+
+    await mysqlConnection.query(ids, (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        res.status(500);
+      } else {
+        console.log("data : ", res);
+        var sql2 = `UPDATE ActuatorUpTime SET StopTime="${date}" ,EnergyUsage=5 WHERE id IN (${res[0].id})`;
+
+        mysqlConnection.query(sql2, function (error, results, fields) {
+          if (error) throw error;
+          console.log(results.insertId);
+        });
+      }
     });
   }
   return true;
