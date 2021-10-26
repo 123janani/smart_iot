@@ -2,7 +2,7 @@
 //const db = require("../config");
 
 const mysql = require("mysql");
-
+const moment = require("moment");
 //MySQL details
 var mysqlConnection = mysql.createConnection({
   host: "iotdb.cx1ev7emnshi.us-east-2.rds.amazonaws.com",
@@ -32,7 +32,7 @@ const getSensorTemperature = async (req, response, next) => {
     console.log("inside try: ");
 
     await mysqlConnection.query(
-      "SELECT * FROM sensorAnalytics where sensorId=1",
+      "SELECT * FROM sensorAnalytics where sensorId=1 LIMIT 20",
       (err, res) => {
         if (err) {
           console.log("error: ", err);
@@ -148,23 +148,24 @@ const getSensorLight = async (req, response, next) => {
 
 const saveTemperature = async (value) => {
   try {
-    const date = new Date();
+    //const date = new Date().toLocaleDateString();
+    const date = moment.utc().format("YYYY-MM-DD HH:mm:ss");
     let action = 0;
-    if (value > 29) {
+    if (value > 26) {
       action = 1;
       function timer() {
         client.publish(
-          "mqtt/dht11_temperature",
-          JSON.stringify(`hello world`) //convert number to string
+          "mqtt/dht11_temperature/ack",
+          JSON.stringify(`on`) //convert number to string
         ); //publish sensor data to broker on topic mqtt/dht
-        console.log("topic published to the broker");
+        console.log("topic published to the broker-on");
       }
       timer();
       // setInterval(timer, 5000, 12, 100); // send sensor data to broker every 5 seconds
       //insert to actuator=1
     }
     console.log("data2", "inside temperature");
-    var sql = `INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (1,${date},"${value}",${action})`;
+    var sql = `INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (1,"${date}","${value}",${action})`;
 
     await mysqlConnection.query(sql, function (error, results, fields) {
       if (error) throw error;
@@ -174,7 +175,7 @@ const saveTemperature = async (value) => {
 
     //insert to actuator=0
     if (action === 1) {
-      var sql1 = `INSERT INTO ActuatorUpTime (StartTime,StopTime,EnergyUsage,ActuatorId) VALUES (${date},null,null,1)`;
+      var sql1 = `INSERT INTO ActuatorUpTime (StartTime,StopTime,EnergyUsage,ActuatorId) VALUES ("${date}",null,null,1)`;
 
       await mysqlConnection.query(sql1, function (error, results, fields) {
         if (error) throw error;
@@ -182,15 +183,36 @@ const saveTemperature = async (value) => {
       });
       console.log("data4");
     } else {
-      var sql1 = `UPDATE ActuatorUpTime SET StopTime=${date} WHERE StopTime= null AND ActuatorId=1 AND id IN (SELECT
-                                    MAX(id)
-                                FROM
-                                    ActuatorUpTime
-                                GROUP BY ActuatorId)`;
+      function timer() {
+        client.publish(
+          "mqtt/dht11_temperature/ack",
+          JSON.stringify(`off`) //convert number to string
+        ); //publish sensor data to broker on topic mqtt/dht
+        console.log("topic published to the broker-off");
+      }
+      timer();
 
-      await mysqlConnection.query(sql1, function (error, results, fields) {
-        if (error) throw error;
-        console.log(results.insertId);
+      var ids = `SELECT 
+                    MAX(id) AS id
+                FROM
+                    ActuatorUpTime
+                WHERE
+                    ActuatorId = 1`;
+      console.log("ids", ids);
+
+      await mysqlConnection.query(ids, (err, res) => {
+        if (err) {
+          console.log("error: ", err);
+          res.status(500);
+        } else {
+          console.log("data : ", res);
+          var sql2 = `UPDATE ActuatorUpTime SET StopTime="${date}" ,EnergyUsage=5 WHERE id IN (${res[0].id})`;
+
+          mysqlConnection.query(sql2, function (error, results, fields) {
+            if (error) throw error;
+            console.log(results.insertId);
+          });
+        }
       });
     }
     return true;
@@ -200,14 +222,14 @@ const saveTemperature = async (value) => {
 };
 
 const saveHumidity = async (value) => {
-  const date = new Date();
+  const date = new Date().toLocaleDateString();
   let action = 0;
   if (value > 50) {
     action = 1;
     function timer() {
       client.publish(
         "mqtt/dht11_humidity",
-        JSON.stringify(`hello world`) //convert number to string
+        JSON.stringify(`on`) //convert number to string
       ); //publish sensor data to broker on topic mqtt/dht
       console.log("topic published to the broker");
     }
@@ -216,7 +238,7 @@ const saveHumidity = async (value) => {
     //insert to actuator=1
   }
   console.log("data2");
-  var sql = `INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (1,${date},"${value}",${action})`;
+  var sql = `INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (1,"${date}","${value}",${action})`;
   mysqlConnection.query(sql, function (err, result) {
     console.log("data4");
     if (err) throw err;
@@ -224,7 +246,7 @@ const saveHumidity = async (value) => {
   });
   //insert to actuator=0
   if (action === 1) {
-    var sql1 = `INSERT INTO ActuatorUpTime (StartTime,StopTime,EnergyUsage,ActuatorId) VALUES (${date},null,null,2)`;
+    var sql1 = `INSERT INTO ActuatorUpTime (StartTime,StopTime,EnergyUsage,ActuatorId) VALUES ("${date}",null,null,2)`;
 
     await mysqlConnection.query(sql1, function (error, results, fields) {
       if (error) throw error;
