@@ -146,10 +146,10 @@ const getSensorLight = async (req, response, next) => {
   }
 };
 
-const saveTemperature = async (value) => {
+const saveTemperature = async value => {
   try {
     //const date = new Date().toLocaleDateString();
-    const date = moment.utc().format("YYYY-MM-DD HH:mm:ss");
+    const date = moment.utcOffset("+0530").format("YYYY-MM-DD HH:mm:ss");
     let action = 0;
     if (value > 26) {
       action = 1;
@@ -221,7 +221,7 @@ const saveTemperature = async (value) => {
   }
 };
 
-const saveHumidity = async (value) => {
+const saveHumidity = async value => {
   const date = new Date().toLocaleDateString();
   let action = 0;
   if (value > 50) {
@@ -289,7 +289,7 @@ const saveHumidity = async (value) => {
   return true;
 };
 
-const saveSoilMoisture = async (value) => {
+const saveSoilMoisture = async value => {
   const date = new Date();
   let action = 0;
   if (value === "on") {
@@ -306,7 +306,7 @@ const saveSoilMoisture = async (value) => {
     //insert to actuator=1
   }
   console.log("data2");
-  var sql = `INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (3,${date},"${value}",${action})`;
+  var sql = `INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (3,"${date}","${value}",${action})`;
   mysqlConnection.query(sql, function (err, result) {
     console.log("data4", value);
     if (err) throw err;
@@ -314,7 +314,7 @@ const saveSoilMoisture = async (value) => {
   });
   //insert to actuator=0
   if (action === 1) {
-    var sql1 = `INSERT INTO ActuatorUpTime (StartTime,StopTime,EnergyUsage,ActuatorId) VALUES (${date},null,null,3)`;
+    var sql1 = `INSERT INTO ActuatorUpTime (StartTime,StopTime,EnergyUsage,ActuatorId) VALUES ("${date}",null,null,3)`;
 
     await mysqlConnection.query(sql1, function (error, results, fields) {
       if (error) throw error;
@@ -357,7 +357,7 @@ const saveSoilMoisture = async (value) => {
   return true;
 };
 
-const saveLightSensor = async (value) => {
+const saveLightSensor = async value => {
   const date = new Date();
   let action = 0;
   if (value > 200) {
@@ -374,7 +374,7 @@ const saveLightSensor = async (value) => {
     //insert to actuator=1
   }
   console.log("data2");
-  var sql = `INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (4,${date},"${value}",${action})`;
+  var sql = `INSERT INTO sensorAnalytics (sensorId,DateTime,value,actionPoint) VALUES (4,"${date}","${value}",${action})`;
   mysqlConnection.query(sql, function (err, result) {
     console.log("data4");
     if (err) throw err;
