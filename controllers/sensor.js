@@ -32,7 +32,7 @@ const getSensorTemperature = async (req, response, next) => {
     console.log("inside try: ");
 
     await mysqlConnection.query(
-      "SELECT * FROM sensorAnalytics where sensorId=1 ORDER BY id DESC LIMIT 35",
+      "SELECT * FROM sensorAnalytics where sensorId=1 ",
       (err, res) => {
         if (err) {
           console.log("error: ", err);
@@ -92,7 +92,7 @@ const getSensorSoil = async (req, response, next) => {
     console.log("inside try: ");
 
     await mysqlConnection.query(
-      "SELECT * FROM sensorAnalytics where sensorId=3",
+      "SELECT * FROM sensorAnalytics where sensorId=3  limit 35",
       (err, res) => {
         if (err) {
           console.log("error: ", err);
@@ -104,7 +104,12 @@ const getSensorSoil = async (req, response, next) => {
           const action = [];
           for (const i of res) {
             time.push(i.DateTime);
-            value.push(i.value);
+            if (i.value === "on") {
+              value.push("1");
+            } else {
+              value.push("0");
+            }
+
             action.push(i.actionPoint);
           }
           response.status(200).json({ time, value, action });
