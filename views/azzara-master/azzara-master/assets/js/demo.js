@@ -96,6 +96,14 @@ client_h.subscribe("mqtt/dht11_temperature"); //your mqtt topic
 client_h.on("message", function (topic, payload) {
   var output = document.getElementById("temp-value");
   output.innerHTML = payload + " °C";
+
+if (payload > 26) {
+  document.getElementById("temp-alarm").style.visibility = "visible";
+} else {
+  document.getElementById("temp-alarm").style.visibility = "hidden";
+}
+
+
   fetch("http://localhost:3000/api/sensor/temp/?sensorID=1&value=" + payload)
     .then((response) => response.json())
     .then((data) => {
