@@ -74,7 +74,11 @@ const getSensorHumidity = async (req, response, next) => {
           const action = [];
           for (const i of res) {
             time.push(i.DateTime);
-            value.push(i.value);
+            if (i.value > 70) {
+              value.push("1");
+            } else {
+              value.push("0");
+            }
             action.push(i.actionPoint);
           }
           response.status(200).json({ time, value, action });
@@ -139,7 +143,11 @@ const getSensorLight = async (req, response, next) => {
           const action = [];
           for (const i of res) {
             time.push(i.DateTime);
-            value.push(i.value);
+            if (i.value > 200) {
+              value.push("1");
+            } else {
+              value.push("0");
+            }
             action.push(i.actionPoint);
           }
           response.status(200).json({ time, value, action });
