@@ -382,7 +382,7 @@ const saveLightSensor = async value => {
   });
   //insert to actuator=0
   if (action === 1) {
-    var sql1 = `INSERT INTO ActuatorUpTime (StartTime,StopTime,EnergyUsage,ActuatorId) VALUES (${date},null,null,4)`;
+    var sql1 = `INSERT INTO ActuatorUpTime (StartTime,StopTime,EnergyUsage,ActuatorId) VALUES ("${date}",null,null,4)`;
 
     await mysqlConnection.query(sql1, function (error, results, fields) {
       if (error) throw error;
