@@ -97,19 +97,18 @@ client_h.on("message", function (topic, payload) {
   var output = document.getElementById("temp-value");
   output.innerHTML = payload + " °C";
 
-if (payload > 26) {
-  document.getElementById("temp-alarm").style.visibility = "visible";
-} else {
-  document.getElementById("temp-alarm").style.visibility = "hidden";
-}
-
+  // if (payload > 26) {
+  //   document.getElementById("temp-alarm").style.visibility = "visible";
+  // } else {
+  //   document.getElementById("temp-alarm").style.visibility = "hidden";
+  // }
 
   fetch("http://localhost:3000/api/sensor/temp/?sensorID=1&value=" + payload)
-    .then((response) => response.json())
-    .then((data) => {
+    .then(response => response.json())
+    .then(data => {
       console.log("Success:", data);
     })
-    .catch((error) => {
+    .catch(error => {
       console.error("Error:", error);
     });
 });
