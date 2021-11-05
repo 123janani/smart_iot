@@ -124,7 +124,7 @@ var client_h1 = mqtt.connect("ws://18.191.187.178:9001", {
 client_h1.subscribe("mqtt/dht11_humidity"); //your mqtt topic
 client_h1.on("message", function (topic, payload) {
   var output = document.getElementById("hu-value");
-  output.innerHTML = payload + " %";
+  output.innerHTML = payload;
   fetch("http://localhost:3000/api/sensor/temp/?sensorID=2&value=" + payload)
     .then(response => response.json())
     .then(data => {
@@ -146,7 +146,12 @@ var client_h2 = mqtt.connect("ws://18.191.187.178:9001", {
 client_h2.subscribe("mqtt/soil"); //your mqtt topic
 client_h2.on("message", function (topic, payload) {
   var output = document.getElementById("soil-value");
-  output.innerHTML = payload + " %";
+  //output.innerHTML = payload + " %";
+  if (payload == "on") {
+    output.innerHTML = "DRY";
+  } else {
+    output.innerHTML = "WET";
+  }
   fetch("http://localhost:3000/api/sensor/temp/?sensorID=3&value=" + payload)
     .then(response => response.json())
     .then(data => {
@@ -166,15 +171,15 @@ var client_h3 = mqtt.connect("ws://18.191.187.178:9001", {
 });
 
 client_h3.subscribe("mqtt/lux"); //your mqtt topic
-client_h3.on("message", function (topic, payload) {
+client_h3.on("message", function (topic, payload1) {
   var output = document.getElementById("light-value");
-  output.innerHTML = payload;
+  output.innerHTML = payload1;
   if (payload < 120) {
     document.getElementById("light-alarm").style.visibility = "visible";
   } else {
     document.getElementById("light-alarm").style.visibility = "hidden";
   }
-  fetch("http://localhost:3000/api/sensor/temp/?sensorID=4&value=" + payload)
+  fetch("http://localhost:3000/api/sensor/temp/?sensorID=4&value=" + payload1)
     .then(response => response.json())
     .then(data => {
       console.log("Success:", data);
@@ -584,7 +589,7 @@ fetch("http://localhost:3000/api/sensor/light", {
     for (i = 0; i < data.action.length; i++) {
       if (data.action[i] === 1) {
         pointRadius_arr[i] = 10;
-        pointcolor_arr[i] = "red";
+        pointcolor_arr[i] = "yellow";
       } else {
         pointRadius_arr[i] = 5;
         pointcolor_arr[i] = "green";
