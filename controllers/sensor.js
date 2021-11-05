@@ -32,7 +32,7 @@ const getSensorTemperature = async (req, response, next) => {
     console.log("inside try: ");
 
     await mysqlConnection.query(
-      "SELECT * FROM sensorAnalytics where sensorId=1 order by id desc limit 35",
+      "SELECT * FROM (SELECT * FROM sensorAnalytics where sensorId=1 ORDER BY id DESC LIMIT 40)Var1 ORDER BY id ASC",
       (err, res) => {
         if (err) {
           console.log("error: ", err);
@@ -63,7 +63,7 @@ const getSensorHumidity = async (req, response, next) => {
     console.log("inside try: ");
 
     await mysqlConnection.query(
-      "SELECT * FROM sensorAnalytics where sensorId=2 order by id desc limit 35",
+      "SELECT * FROM (SELECT * FROM sensorAnalytics where sensorId=2 ORDER BY id DESC LIMIT 40)Var1 ORDER BY id ASC",
       (err, res) => {
         if (err) {
           console.log("error: ", err);
@@ -76,9 +76,9 @@ const getSensorHumidity = async (req, response, next) => {
           for (const i of res) {
             time.push(i.DateTime.substring(0, 24));
             if (i.value > "70") {
-              value.push("1");
+              value.push(i.value);
             } else {
-              value.push("0");
+              value.push(i.value);
             }
             action.push(i.actionPoint);
           }
@@ -98,7 +98,7 @@ const getSensorSoil = async (req, response, next) => {
     console.log("inside try: ");
 
     await mysqlConnection.query(
-      "SELECT * FROM sensorAnalytics where sensorId=3  order by id desc limit 35",
+      "SELECT * FROM (SELECT * FROM sensorAnalytics where sensorId=3 ORDER BY id DESC LIMIT 40)Var1 ORDER BY id ASC",
       (err, res) => {
         if (err) {
           console.log("error: ", err);
@@ -134,7 +134,7 @@ const getSensorLight = async (req, response, next) => {
     console.log("inside try: ");
 
     await mysqlConnection.query(
-      "SELECT * FROM sensorAnalytics where sensorId=4 order by id desc limit 35",
+      "SELECT * FROM (SELECT * FROM sensorAnalytics where sensorId=4 ORDER BY id DESC LIMIT 40)Var1 ORDER BY id ASC",
       (err, res) => {
         if (err) {
           console.log("error: ", err);
@@ -147,9 +147,9 @@ const getSensorLight = async (req, response, next) => {
           for (const i of res) {
             time.push(i.DateTime.substring(0, 24));
             if (i.value > 120) {
-              value.push("1");
+              value.push(i.value);
             } else {
-              value.push("0");
+              value.push(i.value);
             }
             action.push(i.actionPoint);
           }

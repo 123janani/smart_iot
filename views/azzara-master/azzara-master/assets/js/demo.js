@@ -97,11 +97,11 @@ client_h.on("message", function (topic, payload) {
   var output = document.getElementById("temp-value");
   output.innerHTML = payload + " °C";
 
-  // if (payload > 26) {
-  //   document.getElementById("temp-alarm").style.visibility = "visible";
-  // } else {
-  //   document.getElementById("temp-alarm").style.visibility = "hidden";
-  // }
+  if (payload > 26) {
+    document.getElementById("temp-alarm").style.visibility = "visible";
+  } else {
+    document.getElementById("temp-alarm").style.visibility = "hidden";
+  }
 
   fetch("http://localhost:3000/api/sensor/temp/?sensorID=1&value=" + payload)
     .then(response => response.json())
@@ -126,11 +126,11 @@ client_h1.on("message", function (topic, payload) {
   var output = document.getElementById("hu-value");
   output.innerHTML = payload + " %";
   fetch("http://localhost:3000/api/sensor/temp/?sensorID=2&value=" + payload)
-    .then((response) => response.json())
-    .then((data) => {
+    .then(response => response.json())
+    .then(data => {
       console.log("Success:", data);
     })
-    .catch((error) => {
+    .catch(error => {
       console.error("Error:", error);
     });
 });
@@ -148,11 +148,11 @@ client_h2.on("message", function (topic, payload) {
   var output = document.getElementById("soil-value");
   output.innerHTML = payload + " %";
   fetch("http://localhost:3000/api/sensor/temp/?sensorID=3&value=" + payload)
-    .then((response) => response.json())
-    .then((data) => {
+    .then(response => response.json())
+    .then(data => {
       console.log("Success:", data);
     })
-    .catch((error) => {
+    .catch(error => {
       console.error("Error:", error);
     });
 });
@@ -168,13 +168,18 @@ var client_h3 = mqtt.connect("ws://18.191.187.178:9001", {
 client_h3.subscribe("mqtt/lux"); //your mqtt topic
 client_h3.on("message", function (topic, payload) {
   var output = document.getElementById("light-value");
-  output.innerHTML = payload + " %";
+  output.innerHTML = payload;
+  if (payload < 120) {
+    document.getElementById("light-alarm").style.visibility = "visible";
+  } else {
+    document.getElementById("light-alarm").style.visibility = "hidden";
+  }
   fetch("http://localhost:3000/api/sensor/temp/?sensorID=4&value=" + payload)
-    .then((response) => response.json())
-    .then((data) => {
+    .then(response => response.json())
+    .then(data => {
       console.log("Success:", data);
     })
-    .catch((error) => {
+    .catch(error => {
       console.error("Error:", error);
     });
 });
@@ -680,7 +685,6 @@ fetch("http://localhost:3000/api/sensor/light", {
     // There was an error
     console.warn("Something went wrong.", err);
   });
-
 
 var myLegendContainer = document.getElementById("myChartLegend");
 
