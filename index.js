@@ -1,4 +1,4 @@
-var sensor = require("node-dht-sensor");
+//var sensor = require("node-dht-sensor");
 var mqtt = require("mqtt");
 var client = mqtt.connect("ws://18.191.187.178:9001", {
   //open connection with your broker in AWS via websocket

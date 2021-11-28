@@ -17,7 +17,7 @@ mysqlConnection.connect((err) => {
   else console.log("Connection Failed!" + JSON.stringify(err));
 });
 
-var sensor = require("node-dht-sensor");
+//var sensor = require("node-dht-sensor");
 var mqtt = require("mqtt");
 var client = mqtt.connect("ws://18.191.187.178:9001", {
   //open connection with your broker in AWS via websocket
@@ -430,7 +430,7 @@ const saveLightSensor = async value => {
 const saveSensorData = async (req, response, next) => {
   console.log("data1");
   try {
-    console.log("data : ", req.query);
+    console.log("data for testing: ", req.query);
     const id = parseInt(req.query.sensorID);
     const value = req.query.value;
     console.log("value================", value);

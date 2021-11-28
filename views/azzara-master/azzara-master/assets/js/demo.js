@@ -230,7 +230,7 @@ fetch("http://localhost:3000/api/sensor/temperature", {
     console.log(pointRadius_arr);
     console.log(pointcolor_arr);
     //var pointRadius=data;
-    //var pointcolor=['green','green','green','green','red','green','green','green','red','green','green','red'];
+    var pointcolor=['green','green','green','green','red','green','green','green','red','green','green','red'];
     var statisticsChart = new Chart(ctx, {
       type: "line",
       data: {
@@ -240,13 +240,13 @@ fetch("http://localhost:3000/api/sensor/temperature", {
             label: "Temperature",
             borderColor: "",
             pointBackgroundColor: pointcolor_arr,
-            pointRadius: pointRadius_arr,
+            pointRadius: [5, 5, 5, 5, 10, 5, 5, 5, 10, 5, 5, 10],
             backgroundColor: "rgba(243, 84, 93, 0.1)",
             legendColor: "#f3545d",
             fill: true,
             borderWidth: 2,
-            //data: [154, 184, 175, 203, 210, 231, 240, 278, 252, 312, 320, 374]
-            data: data.value,
+            data: [154, 184, 175, 203, 210, 231, 240, 278, 252, 312, 320, 374]
+           // data: data.value,
           },
         ],
       },
