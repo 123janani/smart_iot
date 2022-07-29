@@ -5,9 +5,9 @@ const mysql = require("mysql");
 const moment = require("moment");
 //MySQL details
 var mysqlConnection = mysql.createConnection({
-  host: "iotdb.cx1ev7emnshi.us-east-2.rds.amazonaws.com",
+  host: "++++",
   user: "admin",
-  password: "Root#1234",
+  password: "----",
   database: "smart_iot",
   multipleStatements: true,
 });
